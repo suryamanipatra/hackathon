@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Box, Typography, Paper } from "@mui/material";
 import { styled } from "@mui/system";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import { motion, useAnimation, useInView } from "framer-motion";
 
 const features = [
     {
@@ -54,20 +55,107 @@ const FeatureCard = styled(Paper)(({ theme }) => ({
 }));
 
 const AboutUs = () => {
+    const controls = useAnimation();
+    const ref = useRef(null);
+    const isInView = useInView(ref, { once: false, margin: "-100px" });
+
+    useEffect(() => {
+        if (isInView) {
+            controls.start("visible");
+        } else {
+            controls.start("hidden");
+        }
+    }, [isInView, controls]);
+
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1,
+                delayChildren: 0.2
+            }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { y: 20, opacity: 0 },
+        visible: {
+            y: 0,
+            opacity: 1,
+            transition: {
+                duration: 0.6,
+                ease: "easeOut"
+            }
+        }
+    };
+
+    const iconVariants = {
+        hidden: { rotate: 0, scale: 1 },
+        visible: {
+            rotate: [0, 10, -10, 0],
+            scale: [1, 1.1, 1],
+            transition: {
+                duration: 0.8,
+                ease: "easeInOut"
+            }
+        },
+        hover: {
+            rotate: 360,
+            scale: 1.2,
+            transition: { duration: 0.5 }
+        }
+    };
+
+    const cardHoverVariants = {
+        hover: {
+            y: -5,
+            transition: {
+                duration: 0.3,
+                ease: "easeOut"
+            }
+        }
+    };
+
     return (
-        <Box sx={{ p: 6, textAlign: "center" }}>
-            <Typography
-                variant="h4"
-                fontWeight="bold"
-                gutterBottom
-                sx={{
-                    borderBottom: "3px solid #056682",
-                    display: "inline-block",
-                    mb: 5,
-                }}
-            >
-                About Us
-            </Typography>
+        <Box 
+            sx={{ p: 6, textAlign: "center" }}
+            ref={ref}
+        >
+           <Typography
+                               variant="h3"
+                               sx={{
+                                   textAlign: 'center',
+                                   mb: 6,
+                                   fontWeight: 'bold',
+                                   color: '#056682',
+                                   position: 'relative',
+                                   '&::after': {
+                                       content: '""',
+                                       position: 'absolute',
+                                       bottom: -10,
+                                       left: '50%',
+                                       transform: 'translateX(-50%)',
+                                       width: '80px',
+                                       height: '4px',
+                                       background: 'linear-gradient(90deg, #5793A4, #056682)',
+                                       borderRadius: '2px'
+                                   }
+                               }}
+                               component={motion.div}
+                               initial={{ opacity: 0 }}
+                               animate={controls}
+                               variants={{
+                                   hidden: { opacity: 0, y: 20 },
+                                   visible: { 
+                                       opacity: 1, 
+                                       y: 0,
+                                       transition: { duration: 0.5 }
+                                   }
+                               }}
+                           >
+                               About Us
+                           </Typography>
 
             <Box
                 sx={{
@@ -80,6 +168,10 @@ const AboutUs = () => {
                         marginRight: "auto",
                     },
                 }}
+                component={motion.div}
+                variants={containerVariants}
+                initial="hidden"
+                animate={controls}
             >
                 {features.map((feature, index) => (
                     <Box
@@ -87,8 +179,14 @@ const AboutUs = () => {
                         sx={{
                             flex: "0 0 calc(33.333% - 16px)", 
                         }}
+                        component={motion.div}
+                        variants={itemVariants}
+                        whileHover="hover"
                     >
-                        <FeatureCard>
+                        <FeatureCard
+                            component={motion.div}
+                            variants={cardHoverVariants}
+                        >
                             <Box
                                 sx={{
                                     width: 40,
@@ -101,6 +199,10 @@ const AboutUs = () => {
                                     alignItems: "center",
                                     justifyContent: "center",
                                 }}
+                                // component={motion.div}
+                                variants={iconVariants}
+                                // animate={controls}
+                                whileHover="hover"
                             >
                                 <InfoOutlinedIcon fontSize="small" />
                             </Box>
@@ -121,7 +223,6 @@ const AboutUs = () => {
                     </Box>
                 ))}
             </Box>
-
         </Box>
     );
 };
